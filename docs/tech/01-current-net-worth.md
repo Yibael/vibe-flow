@@ -41,7 +41,7 @@ CREATE TABLE account_items (
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   kind TEXT NOT NULL CHECK (kind IN ('asset', 'liability')),
-  amount_cny INTEGER NOT NULL CHECK (amount_cny >= 0),
+  amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0),
   note TEXT,
   archived_at TEXT,
   created_at TEXT NOT NULL,
@@ -72,7 +72,7 @@ type AccountItem = {
   name: string
   category: AccountItemCategory
   kind: AccountKind
-  amountCny: number
+  amountCents: number
   note: string | null
   archivedAt: string | null
   createdAt: string
@@ -80,7 +80,7 @@ type AccountItem = {
 }
 ```
 
-`amountCny` 在 TypeScript 领域模型中表示“分”，格式化展示时转换为元。
+`amountCents` 在 TypeScript 领域模型中表示“分”，格式化展示时转换为元。
 
 ## 服务端查询
 
@@ -191,4 +191,3 @@ bun run typecheck
 bun run lint
 bun run build
 ```
-

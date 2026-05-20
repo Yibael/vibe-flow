@@ -96,7 +96,7 @@
 | name | string | 是 | 用户可见的项目名称 |
 | category | string | 是 | 受支持的类别 |
 | kind | string | 是 | `asset` 或 `liability` |
-| amountCny | number | 是 | 人民币金额，非负数，可以为 0 |
+| amountCents | number | 是 | 人民币金额，单位为分，非负数，可以为 0 |
 | archivedAt | datetime | 否 | 未归档时为空 |
 | createdAt | datetime | 是 | 创建时间 |
 | updatedAt | datetime | 是 | 最后更新时间 |
@@ -107,14 +107,24 @@
 | --- | --- | --- | --- |
 | id | string | 是 | 稳定唯一标识 |
 | snapshotDate | date | 是 | 唯一本地日期 |
-| totalAssetsCny | number | 是 | 未归档资产项目汇总 |
-| totalLiabilitiesCny | number | 是 | 未归档负债项目汇总 |
-| netWorthCny | number | 是 | 总资产减总负债 |
-| categoryBreakdownJson | string | 是 | 序列化后的分类汇总 |
+| totalAssetsCents | number | 是 | 未归档资产项目汇总，单位为分 |
+| totalLiabilitiesCents | number | 是 | 未归档负债项目汇总，单位为分 |
+| netWorthCents | number | 是 | 总资产减总负债，单位为分 |
 | createdAt | datetime | 是 | 创建时间 |
 | updatedAt | datetime | 是 | 最后更新时间 |
 
 `snapshotDate` 必须具备唯一约束。
+
+### SnapshotCategoryBreakdown
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| id | string | 是 | 稳定唯一标识 |
+| snapshotId | string | 是 | 所属快照 ID |
+| kind | string | 是 | `asset` 或 `liability` |
+| category | string | 是 | 受支持的类别 |
+| amountCents | number | 是 | 该分类在快照中的金额，单位为分 |
+| createdAt | datetime | 是 | 创建时间 |
 
 ## 页面与交互
 
@@ -165,4 +175,3 @@
 - 用户可以按日期倒序查看快照列表。
 - 删除快照必须二次确认，且不会影响资产负债项目。
 - 重启本地应用后，SQLite 中的快照数据仍然存在。
-

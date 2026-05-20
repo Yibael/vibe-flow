@@ -92,7 +92,7 @@
 | name | string | 是 | 用户可见的项目名称 |
 | category | string | 是 | 一个受支持的类别 |
 | kind | string | 是 | `asset` 或 `liability` |
-| amountCny | number | 是 | 人民币金额，非负数，可以为 0 |
+| amountCents | number | 是 | 人民币金额，单位为分，非负数，可以为 0 |
 | note | string | 否 | 备注 |
 | createdAt | datetime | 是 | 创建时间 |
 | updatedAt | datetime | 是 | 最后更新时间 |
@@ -165,4 +165,3 @@
 - 分类汇总只包含未归档项目。
 - 空名称、负数金额等非法输入不能保存。
 - 关闭并重新打开本地应用后，SQLite 中的数据仍然存在。
-

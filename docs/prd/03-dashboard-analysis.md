@@ -96,7 +96,7 @@
 | name | string | 是 | 用户可见的项目名称 |
 | category | string | 是 | 受支持的类别 |
 | kind | string | 是 | `asset` 或 `liability` |
-| amountCny | number | 是 | 人民币金额，非负数，可以为 0 |
+| amountCents | number | 是 | 人民币金额，单位为分，非负数，可以为 0 |
 | archivedAt | datetime | 否 | 未归档时为空 |
 | updatedAt | datetime | 是 | 用于最近更新排序 |
 
@@ -106,11 +106,20 @@
 | --- | --- | --- | --- |
 | id | string | 是 | 稳定唯一标识 |
 | snapshotDate | date | 是 | 唯一本地日期 |
-| totalAssetsCny | number | 是 | 保存时的总资产 |
-| totalLiabilitiesCny | number | 是 | 保存时的总负债 |
-| netWorthCny | number | 是 | 保存时的净资产 |
-| categoryBreakdownJson | string | 是 | 序列化后的分类汇总 |
+| totalAssetsCents | number | 是 | 保存时的总资产，单位为分 |
+| totalLiabilitiesCents | number | 是 | 保存时的总负债，单位为分 |
+| netWorthCents | number | 是 | 保存时的净资产，单位为分 |
 | updatedAt | datetime | 是 | 最后更新时间 |
+
+### SnapshotCategoryBreakdown
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| id | string | 是 | 稳定唯一标识 |
+| snapshotId | string | 是 | 所属快照 ID |
+| kind | string | 是 | `asset` 或 `liability` |
+| category | string | 是 | 受支持的类别 |
+| amountCents | number | 是 | 该分类在快照中的金额，单位为分 |
 
 ## 页面与交互
 
@@ -166,4 +175,3 @@
 - 分类占比计算正确，且不会出现除以 0。
 - 最近更新项目按更新时间倒序排列。
 - 已归档项目不会出现在任何当前看板视图中。
-

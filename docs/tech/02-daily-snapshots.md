@@ -43,7 +43,7 @@ CREATE TABLE account_items (
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   kind TEXT NOT NULL CHECK (kind IN ('asset', 'liability')),
-  amount_cny INTEGER NOT NULL CHECK (amount_cny >= 0),
+  amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0),
   archived_at TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
@@ -56,16 +56,34 @@ CREATE TABLE account_items (
 CREATE TABLE net_worth_snapshots (
   id TEXT PRIMARY KEY,
   snapshot_date TEXT NOT NULL UNIQUE,
-  total_assets_cny INTEGER NOT NULL CHECK (total_assets_cny >= 0),
-  total_liabilities_cny INTEGER NOT NULL CHECK (total_liabilities_cny >= 0),
-  net_worth_cny INTEGER NOT NULL,
-  category_breakdown_json TEXT NOT NULL,
+  total_assets_cents INTEGER NOT NULL CHECK (total_assets_cents >= 0),
+  total_liabilities_cents INTEGER NOT NULL CHECK (total_liabilities_cents >= 0),
+  net_worth_cents INTEGER NOT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
 ```
 
 日期使用本地日期字符串 `YYYY-MM-DD`。
+
+### snapshot_category_breakdowns
+
+本阶段使用明细表保存快照当时的分类汇总：
+
+```sql
+CREATE TABLE snapshot_category_breakdowns (
+  id TEXT PRIMARY KEY,
+  snapshot_id TEXT NOT NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('asset', 'liability')),
+  category TEXT NOT NULL,
+  amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0),
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (snapshot_id)
+    REFERENCES net_worth_snapshots(id)
+    ON DELETE CASCADE,
+  UNIQUE (snapshot_id, kind, category)
+);
+```
 
 ## 快照生成规则
 
@@ -74,7 +92,7 @@ CREATE TABLE net_worth_snapshots (
 - 总资产：`kind = 'asset' AND archived_at IS NULL` 的金额之和。
 - 总负债：`kind = 'liability' AND archived_at IS NULL` 的金额之和。
 - 净资产：总资产减总负债。
-- 分类汇总：按 `kind + category` 汇总后序列化为 JSON。
+- 分类汇总：按 `kind + category` 汇总后写入 `snapshot_category_breakdowns`。
 
 没有任何未归档项目时，仍允许生成 0 值快照。
 
@@ -89,6 +107,7 @@ CREATE TABLE net_worth_snapshots (
 - `deleteSnapshot(id)`：删除快照。
 
 `upsertSnapshotForDate` 必须使用 `snapshot_date` 唯一约束，确保同一日期不会重复。
+更新已有日期快照时，必须在同一事务中删除并重建该快照的分类明细。
 
 ## Server Actions
 
@@ -191,4 +210,3 @@ bun run typecheck
 bun run lint
 bun run build
 ```
-

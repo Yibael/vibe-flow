@@ -51,7 +51,7 @@ CREATE TABLE account_items (
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   kind TEXT NOT NULL CHECK (kind IN ('asset', 'liability')),
-  amount_cny INTEGER NOT NULL CHECK (amount_cny >= 0),
+  amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0),
   note TEXT,
   archived_at TEXT,
   created_at TEXT NOT NULL,
@@ -65,12 +65,28 @@ CREATE TABLE account_items (
 CREATE TABLE net_worth_snapshots (
   id TEXT PRIMARY KEY,
   snapshot_date TEXT NOT NULL UNIQUE,
-  total_assets_cny INTEGER NOT NULL CHECK (total_assets_cny >= 0),
-  total_liabilities_cny INTEGER NOT NULL CHECK (total_liabilities_cny >= 0),
-  net_worth_cny INTEGER NOT NULL,
-  category_breakdown_json TEXT NOT NULL,
+  total_assets_cents INTEGER NOT NULL CHECK (total_assets_cents >= 0),
+  total_liabilities_cents INTEGER NOT NULL CHECK (total_liabilities_cents >= 0),
+  net_worth_cents INTEGER NOT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
+);
+```
+
+### snapshot_category_breakdowns
+
+```sql
+CREATE TABLE snapshot_category_breakdowns (
+  id TEXT PRIMARY KEY,
+  snapshot_id TEXT NOT NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('asset', 'liability')),
+  category TEXT NOT NULL,
+  amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0),
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (snapshot_id)
+    REFERENCES net_worth_snapshots(id)
+    ON DELETE CASCADE,
+  UNIQUE (snapshot_id, kind, category)
 );
 ```
 
@@ -81,24 +97,24 @@ CREATE TABLE net_worth_snapshots (
 ```ts
 type DashboardData = {
   summary: {
-    totalAssetsCny: number
-    totalLiabilitiesCny: number
-    netWorthCny: number
-    previousNetWorthCny: number | null
-    netWorthDeltaCny: number | null
+    totalAssetsCents: number
+    totalLiabilitiesCents: number
+    netWorthCents: number
+    previousNetWorthCents: number | null
+    netWorthDeltaCents: number | null
   }
   trend: Array<{
     snapshotDate: string
-    netWorthCny: number
+    netWorthCents: number
   }>
   assetBreakdown: Array<{
     category: string
-    amountCny: number
+    amountCents: number
     percentage: number | null
   }>
   liabilityBreakdown: Array<{
     category: string
-    amountCny: number
+    amountCents: number
     percentage: number | null
   }>
   recentItems: Array<{
@@ -106,7 +122,7 @@ type DashboardData = {
     name: string
     category: string
     kind: "asset" | "liability"
-    amountCny: number
+    amountCents: number
     updatedAt: string
   }>
 }
@@ -192,7 +208,7 @@ type DashboardData = {
 
 提供统一工具函数：
 
-- `formatCurrencyFromCents(amountCny)`。
+- `formatCurrencyFromCents(amountCents)`。
 - `formatPercent(value)`。
 - `formatDate(date)`。
 
@@ -218,4 +234,3 @@ bun run typecheck
 bun run lint
 bun run build
 ```
-
